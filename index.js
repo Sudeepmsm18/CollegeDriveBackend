@@ -35,14 +35,20 @@ connectDB();
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_URL_ALT,
-].filter(Boolean); // remove any undefined entries
+  'https://college-drive-frontend.vercel.app',
+  'https://college-drive-frontend.vercel.app/'
+].filter(Boolean).map(url => url.replace(/\/$/, '')); // normalize by removing trailing slash
 
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (e.g. mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Normalize origin to compare
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
     callback(new Error(`CORS: Origin ${origin} not allowed`));
   },
   credentials: true
