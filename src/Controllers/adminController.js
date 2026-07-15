@@ -220,7 +220,7 @@ const startTestForStudents = async (req, res) => {
       return res.status(400).json({ message: 'Please select students to activate exam' });
     }
     await Student.updateMany(
-      { _id: { $in: studentIds } },
+      { _id: { $in: studentIds }, testSubmitted: { $ne: true } },
       { 
         $set: { 
           testAllowed: true,
@@ -278,9 +278,9 @@ const startExamForBatch = async (req, res) => {
 
     await batch.save();
 
-    // Activate exam for all students in this batch
+    // Activate exam for all students in this batch who haven't already submitted it
     await Student.updateMany(
-      { batch: name },
+      { batch: name, testSubmitted: { $ne: true } },
       { 
         $set: { 
           testAllowed: true,
